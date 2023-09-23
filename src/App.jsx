@@ -5,6 +5,7 @@ import loginService from "./services/login";
 import LoginForm from "./components/LoginForm";
 import BlogForm from "./components/BlogForm";
 import Notification from "./components/Notification";
+import Togglable from "./components/Togglable";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
@@ -72,7 +73,6 @@ const App = () => {
         setMessage("");
       }, 5000);
     }
-    
   };
   if (user === null)
     return (
@@ -99,16 +99,18 @@ const App = () => {
             log out
           </button>
         </p>
-        <h2>create new</h2>
-        <BlogForm
-          handleBlogCreate={handleBlogCreate}
-          title={title}
-          setTitle={setTitle}
-          author={author}
-          setAuthor={setAuthor}
-          url={url}
-          setUrl={setUrl}
-        />
+        <Togglable label="create blog">
+          <h2>create new</h2>
+          <BlogForm
+            handleBlogCreate={handleBlogCreate}
+            title={title}
+            setTitle={setTitle}
+            author={author}
+            setAuthor={setAuthor}
+            url={url}
+            setUrl={setUrl}
+          />
+        </Togglable>
         <BlogList blogs={blogs} />
       </div>
     );
