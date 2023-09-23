@@ -13,10 +13,6 @@ const App = () => {
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
 
-  const [title, setTitle] = useState("");
-  const [author, setAuthor] = useState("");
-  const [url, setUrl] = useState("");
-
   const [message, setMessage] = useState("");
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
@@ -54,14 +50,9 @@ const App = () => {
     }
   }, []);
 
-  const handleBlogCreate = async (event) => {
-    event.preventDefault();
-    console.log(title, author, url);
+  const createBlog = async (blogObject) => {
     try {
-      const data = await blogService.create({ title, url, author });
-      setAuthor("");
-      setTitle("");
-      setUrl("");
+      const data = await blogService.create(blogObject);
       setBlogs(blogs.concat(data));
       setMessage(`a new blog ${data.title}, by ${data.author} added`);
       setTimeout(() => {
@@ -74,6 +65,35 @@ const App = () => {
       }, 5000);
     }
   };
+
+  const updateBlog = async (data, id) => {
+    try {
+      const response = await blogService.update(data, id);
+      const newBlogs = blogs.map((blog) =>
+        blog.id === response.id ? response : blog
+      );
+      setBlogs(newBlogs);
+    } catch (error) {
+      setMessage(`[ERROR] ${error.response.data.error}`);
+      setTimeout(() => {
+        setMessage("");
+      }, 5000);
+    }
+  };
+
+  const deleteBlog = async (id) => {
+    try {
+      await blogService.deleteBlog(id);
+      setBlogs(blogs.filter((blog) => blog.id !== id));
+    } catch (error) {
+      setMessage(`[ERROR] ${error.response.data.error}`);
+      setTimeout(() => {
+        setMessage("");
+      }, 5000);
+    }
+  };
+  blogs.sort((a, b) => b.likes - a.likes);
+
   if (user === null)
     return (
       <>
@@ -101,17 +121,9 @@ const App = () => {
         </p>
         <Togglable label="create blog">
           <h2>create new</h2>
-          <BlogForm
-            handleBlogCreate={handleBlogCreate}
-            title={title}
-            setTitle={setTitle}
-            author={author}
-            setAuthor={setAuthor}
-            url={url}
-            setUrl={setUrl}
-          />
+          <BlogForm createBlog={createBlog} />
         </Togglable>
-        <BlogList blogs={blogs} />
+        <BlogList blogs={blogs} updateBlog={updateBlog} deleteBlog={deleteBlog} user={user} />
       </div>
     );
 };
